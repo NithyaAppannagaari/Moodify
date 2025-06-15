@@ -1,7 +1,7 @@
 import { Link } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function Home() {
+export default function Final() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.subtitle}>Thanks @spotibop!</Text>
@@ -9,14 +9,14 @@ export default function Home() {
     
       <View>
         <Image
-            source={require('/Users/karengong/Moodify/assets/images/explaylist.png')}
+            source={require('../assets/images/explaylist.png')}
             style={styles.playlist}
         />
       </View>
 
       <View style={styles.refreshContainer}>
         <Link 
-            href={{ pathname: '/final'}} 
+            href={{ pathname: '/upload'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>upload new image!</Text>

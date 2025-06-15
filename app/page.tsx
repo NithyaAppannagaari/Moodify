@@ -1,13 +1,19 @@
-import { Link } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { Link, useLocalSearchParams } from 'expo-router';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function Home() {
+export default function Page() {
+  const { uri } = useLocalSearchParams<{ uri?: string }>();
+
+  if (!uri) {
+    return <Text>No image selected.</Text>;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.generateNewContainer}>
         <Text style={styles.subtitle}>@spotibop's page</Text>
           <Link 
-            href={{ pathname: '/login'}} 
+            href={{ pathname: '/upload'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>new image</Text>
@@ -23,14 +29,14 @@ export default function Home() {
       </View>
       <View>
         <Image
-            source={require('/Users/karengong/Moodify/assets/images/moodifyeximage.jpeg')}
+            source={{uri}}
             style={styles.image}
         />
       </View>
 
       <View>
         <Image
-            source={require('/Users/karengong/Moodify/assets/images/song 1.png')}
+            source={require('../assets/images/song 1.png')}
             style={styles.music}
         />
       </View>

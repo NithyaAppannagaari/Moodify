@@ -20,7 +20,7 @@ export default function Upload() {
     if(!result.canceled) {
         const imageUri = result.assets[0].uri;
         router.push({
-            pathname: '/display',
+            pathname: '/page',
             params: { uri: imageUri },
         });
     }
