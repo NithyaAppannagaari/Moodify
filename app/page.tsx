@@ -7,14 +7,14 @@ export default function Home() {
       <View style={styles.generateNewContainer}>
         <Text style={styles.subtitle}>@spotibop's page</Text>
           <Link 
-            href={{ pathname: '/(tabs)/login'}} 
+            href={{ pathname: '/login'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>new image</Text>
             </TouchableOpacity>
           </Link>
           <Link 
-            href={{ pathname: '/(tabs)/login'}} 
+            href={{ pathname: '/login'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>new song list</Text>
@@ -37,7 +37,7 @@ export default function Home() {
 
       <View style={styles.finishContainer}>
         <Link 
-            href={{ pathname: '/(tabs)/final'}} 
+            href={{ pathname: '/final'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>generate my playlist →</Text>

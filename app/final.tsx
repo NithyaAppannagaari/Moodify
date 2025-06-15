@@ -16,7 +16,7 @@ export default function Home() {
 
       <View style={styles.refreshContainer}>
         <Link 
-            href={{ pathname: '/(tabs)/final'}} 
+            href={{ pathname: '/final'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>upload new image!</Text>
