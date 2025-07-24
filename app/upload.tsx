@@ -19,9 +19,13 @@ export default function Upload() {
 
     if(!result.canceled) {
         const imageUri = result.assets[0].uri;
+        const labels = await sendImageToModel(imageUri);
+
+        console.log("labels detected: ", labels);
+
         router.push({
             pathname: '/page',
-            params: { uri: imageUri },
+            params: { uri: imageUri, labels: JSON.stringify(labels) },
         });
     }
   }
@@ -40,6 +44,27 @@ export default function Upload() {
     </View>
   );
 }
+
+const sendImageToModel = async (uri: string) => {
+  const formData = new FormData();
+  formData.append("file", {uri, name: "image.jpg", type: "image/jpeg"} as any);
+
+  try {
+    const response = await fetch("http://YOUR_IP:8000/detect", {
+      method: "POST",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    return data.labels; //api returns { labels: [...] }
+  } catch (err) {
+    console.error("error sending image: ", err);
+    return [];
+  }
+};
 
 const styles = StyleSheet.create({
   container: {
