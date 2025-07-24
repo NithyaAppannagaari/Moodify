@@ -20,7 +20,7 @@ export default function Page() {
             </TouchableOpacity>
           </Link>
           <Link 
-            href={{ pathname: '/login'}} 
+            href={{ pathname: '/'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>new song list</Text>
