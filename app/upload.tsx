@@ -1,11 +1,12 @@
 import { HelloWave } from '@/components/HelloWave';
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 
 export default function Upload() {
   const router = useRouter();
+  const { userName } = useLocalSearchParams();
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -14,8 +15,6 @@ export default function Upload() {
         aspect: [4,3],
         quality: 1,
     });
-
-    console.log(result);
 
     if(!result.canceled) {
         const imageUri = result.assets[0].uri;
@@ -36,7 +35,7 @@ export default function Upload() {
             Moodify
         </Text>
         <View style = {styles.centerView}>
-            <Text style = {styles.centerText}>Hi <Text style = {styles.spotibopText}>@spotibop !</Text> <HelloWave/></Text>
+            <Text style = {styles.centerText}>Hi <Text style = {styles.spotibopText}>@{userName}!</Text> <HelloWave/></Text>
                 <Pressable style = {styles.button} onPress = {pickImage}>
                     <Text style = {styles.buttonText}>Upload Image</Text>
                 </Pressable>
