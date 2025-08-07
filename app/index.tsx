@@ -2,6 +2,7 @@ import * as AuthSession from 'expo-auth-session';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { fetchOllamaResponse } from '../backend/ollama';
 
 /** Here, we want to integrate with Spotify API to log in and get credentials to be able to make query searches */
 const API_URL = 'http://192.168.2.59:3000'; // this is your computer's IP address (the localhost of the server)
@@ -84,6 +85,11 @@ export default function HomeScreen() {
       });
 
       const userData = await res.json();
+
+      // temporary labels list
+      const tempLabels = ["plant", "person", "book"];
+      const ollamaResponse = await fetchOllamaResponse(tempLabels);
+      console.log("generated description: ", ollamaResponse);
 
       router.navigate({
         pathname: '/upload',
