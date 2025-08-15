@@ -179,5 +179,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'regular',
   },
+  labelText: {
+    color: '#700',
+    fontSize: 16,
+    fontWeight: 'regular',
+  },
   
 });

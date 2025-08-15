@@ -1,10 +1,12 @@
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Final() {
+  const { userName } = useLocalSearchParams();
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.subtitle}>Thanks @spotibop!</Text>
+      <Text style={styles.subtitle}>Thanks @{userName}!</Text>
       <Text style={styles.text}>Check out your curated playlist below</Text>
     
       <View>
@@ -16,7 +18,7 @@ export default function Final() {
 
       <View style={styles.refreshContainer}>
         <Link 
-            href={{ pathname: '/upload'}} 
+            href={{ pathname: '/upload', params: {userName: userName}}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>upload new image!</Text>

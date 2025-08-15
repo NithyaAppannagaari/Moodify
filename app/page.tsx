@@ -3,6 +3,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
+  const { userName } = useLocalSearchParams();
 
   if (!uri) {
     return <Text>No image selected.</Text>;
@@ -11,9 +12,12 @@ export default function Page() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.generateNewContainer}>
-        <Text style={styles.subtitle}>@spotibop's page</Text>
+        <Text style={styles.subtitle}>@{userName}'s page</Text>
           <Link 
-            href={{ pathname: '/upload'}} 
+            href={{ 
+              pathname: '/upload',
+              params: {userName: userName}
+            }} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>new image</Text>
@@ -43,7 +47,7 @@ export default function Page() {
 
       <View style={styles.finishContainer}>
         <Link 
-            href={{ pathname: '/final'}} 
+            href={{ pathname: '/final', params: {userName: userName}}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>generate my playlist →</Text>

@@ -24,7 +24,7 @@ export default function Upload() {
 
         router.push({
             pathname: '/page',
-            params: { uri: imageUri, labels: JSON.stringify(labels) },
+            params: { uri: imageUri, labels: JSON.stringify(labels), userName: userName },
         });
     }
   }
