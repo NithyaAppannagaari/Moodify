@@ -4,10 +4,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fetchOllamaResponse } from '../backend/ollama';
 
-/** Here, we want to integrate with Spotify API to log in and get credentials to be able to make query searches */
-const API_URL = 'http://192.168.2.59:3000'; // this is your computer's IP address (the localhost of the server)
+// DEFINE CLIENT-SIDE CONSTANTS APPLICABLE TO ENTIRE APP
+const API_URL = 'http://192.168.2.59'; // this is your computer's IP address (the localhost of the server)
 const CLIENT_ID = '2e327947bec246929a9c902ab76e5172';
 const REDIRECT_URI = AuthSession.makeRedirectUri();
+
 const discovery = {
   authorizationEndpoint: 'https://accounts.spotify.com/authorize',
   tokenEndpoint: 'https://accounts.spotify.com/api/token', // not used directly
@@ -78,7 +79,7 @@ export default function HomeScreen() {
     setLoading(true);
 
     try {  
-      const res = await fetch(`${API_URL}/exchange`, {
+      const res = await fetch(`${API_URL}:3000/exchange`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, code_verifier: codeVerifier }),
@@ -88,12 +89,12 @@ export default function HomeScreen() {
 
       // temporary labels list
       const tempLabels = ["plant", "person", "book"];
-      const ollamaResponse = await fetchOllamaResponse(tempLabels);
+      const ollamaResponse = await fetchOllamaResponse(tempLabels, API_URL);
       console.log("generated description: ", ollamaResponse);
 
       router.navigate({
         pathname: '/upload',
-        params: { userName: userData["display_name"]},
+        params: { userName: userData["display_name"], apiURL: API_URL},
       });
     } finally {
       setLoading(false);
@@ -116,7 +117,7 @@ export default function HomeScreen() {
       {loading ? (
         <>
           <Animated.Text
-            style={styles.smallTitle}
+            style={styles.labelText}
           >
             {loadingMessages[messageIndex]}
           </Animated.Text>
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: 'regular',
   },
   labelText: {
-    color: '#700',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'regular',
   },

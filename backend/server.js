@@ -1,6 +1,7 @@
-require('dotenv').config();
-const express = require('express');
-const fetch = require('node-fetch');
+import 'dotenv/config'; // automatically loads .env
+import express from 'express';
+import fetch from 'node-fetch';
+import getGenres from './ollama.js'; // assuming default export
 
 const app = express();
 app.use(express.json());
@@ -108,17 +109,15 @@ app.post('/exchange', async (req, res) => {
         const genreData = await genreResponse.json();
         const genre = genreData.genres[0] || 'any';
 
-        trackIds.add(JSON.stringify({ id: track.id, genre }));
+        tracks.add(JSON.stringify({ id: track.id, name: track.name, song: track.preview_url, genre }));
       } catch (error) {
         console.error(`Failed to fetch genre for artist ${artistId}:`, error);
       }
     }
 
-    tracks = trackIds;
-
     console.log("User:", user.display_name);
     console.log("Collected tracks by genre:");
-    for (let t of trackIds) {
+    for (let t of tracks) {
       console.log(JSON.parse(t));
     }
 
@@ -129,16 +128,42 @@ app.post('/exchange', async (req, res) => {
   }
 });
 
-app.get("/songsByGenre", async (req, res) => {
-  // Future endpoint
+app.post('/genres', async (req, res) => {
+  const { labels, genres } = req.body;
+  console.log(labels);
+  console.log(genres);
+
+  try {
+    const result = await getGenres(labels, genres);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+app.post("/songsByGenre", async (req, res) => {
   const { genres } = req.body;
+  let songs = new Set();
+  let counter = 0;
 
-  // 1. iterate through genres in global tracks Set
-  // 2. ask Ollama if the genres match?
-  // However, each Ollama ask is going to take a really long time, and there's a lot of songs we queried
-  // Maybe it would be better to ask Ollama to choose songs from the given list based off of the keywords we give
+  const genreSet = new Set(genres);
 
-  res.json([...tracks].map(t => JSON.parse(t)));
+  console.log(genreSet);
+
+  console.log(tracks);
+
+  for (let track of tracks) {
+    let t = JSON.parse(track);
+    console.log("in here");
+    console.log(t.genre);
+    if (genreSet.has(t.genre) && counter < 10) {
+      console.log("adding track " + t.name);
+      songs.add(t.name);
+      counter += 1;
+    }
+  }
+
+  res.json(songs);
 });
 
 app.listen(3000, () => console.log('Server running on port 3000'));

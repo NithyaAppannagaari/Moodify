@@ -3399,7 +3399,7 @@ expo-image-loader@~5.1.0:
   resolved "https://registry.npmjs.org/expo-image-loader/-/expo-image-loader-5.1.0.tgz"
   integrity sha512-sEBx3zDQIODWbB5JwzE7ZL5FJD+DK3LVLWBVJy6VzsqIA6nDEnSFnsnWyCfCTSvbGigMATs1lgkC2nz3Jpve1Q==
 
-expo-image-picker@^16.1.4:
+expo-image-picker@~16.1.4:
   version "16.1.4"
   resolved "https://registry.npmjs.org/expo-image-picker/-/expo-image-picker-16.1.4.tgz"
   integrity sha512-bTmmxtw1AohUT+HxEBn2vYwdeOrj1CLpMXKjvi9FKSoSbpcarT4xxI0z7YyGwDGHbrJqyyic3I9TTdP2J2b4YA==
@@ -5256,6 +5256,13 @@ object.values@^1.1.6, object.values@^1.2.0, object.values@^1.2.1:
     define-properties "^1.2.1"
     es-object-atoms "^1.0.0"
 
+ollama@^0.5.17:
+  version "0.5.17"
+  resolved "https://registry.npmjs.org/ollama/-/ollama-0.5.17.tgz"
+  integrity sha512-q5LmPtk6GLFouS+3aURIVl+qcAOPC4+Msmx7uBb3pd+fxI55WnGjmLZ0yijI/CYy79x0QPGx3BwC3u5zv9fBvQ==
+  dependencies:
+    whatwg-fetch "^3.6.20"
+
 on-finished@^2.4.1:
   version "2.4.1"
   resolved "https://registry.npmjs.org/on-finished/-/on-finished-2.4.1.tgz"
@@ -6979,7 +6986,7 @@ webidl-conversions@^5.0.0:
   resolved "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-5.0.0.tgz"
   integrity sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA==
 
-whatwg-fetch@^3.0.0:
+whatwg-fetch@^3.0.0, whatwg-fetch@^3.6.20:
   version "3.6.20"
   resolved "https://registry.npmjs.org/whatwg-fetch/-/whatwg-fetch-3.6.20.tgz"
   integrity sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==
@@ -7196,3 +7203,13 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+zod-to-json-schema@^3.24.6:
+  version "3.24.6"
+  resolved "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.24.6.tgz"
+  integrity sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==
+
+zod@^4.0.17:
+  version "4.0.17"
+  resolved "https://registry.npmjs.org/zod/-/zod-4.0.17.tgz"
+  integrity sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==

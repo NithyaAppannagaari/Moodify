@@ -7,6 +7,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 export default function Upload() {
   const router = useRouter();
   const { userName } = useLocalSearchParams();
+  const { apiUrl } = useLocalSearchParams();
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -18,13 +19,37 @@ export default function Upload() {
 
     if(!result.canceled) {
         const imageUri = result.assets[0].uri;
-        const labels = await sendImageToModel(imageUri);
+        //const labels = await sendImageToModel(imageUri);
 
-        console.log("labels detected: ", labels);
+        //console.log("labels detected: ", labels);
+
+        // convert labels to genre here
+        const tempLabels = ["plant", "person", "book"];
+        const gns = ["pop", "rock"];
+
+        // const filteredGenres = await fetch(`http://192.168.2.59:3000/genres`, {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify({ labels: tempLabels, genres: gns}),
+        // });
+
+        let filteredGenres = ['christmas', 'pop'];
+        console.log(filteredGenres);
+
+        // get songs by genre
+        const matchingSongs = await fetch('http://192.168.2.59:3000/songsByGenre', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({genres: filteredGenres}),
+        });
+
+        const songsResult = await matchingSongs.json();
+
+        console.log(songsResult);
 
         router.push({
             pathname: '/page',
-            params: { uri: imageUri, labels: JSON.stringify(labels), userName: userName },
+            params: { uri: imageUri, labels: JSON.stringify(tempLabels), userName: userName },
         });
     }
   }
@@ -49,7 +74,7 @@ const sendImageToModel = async (uri: string) => {
   formData.append("file", {uri, name: "image.jpg", type: "image/jpeg"} as any);
 
   try {
-    const response = await fetch("http://YOUR_IP:8000/detect", {
+    const response = await fetch("http://YOUR_IP:8000/detect", { // need to change this to proper ip address
       method: "POST",
       headers: {
         "Content-Type": "multipart/form-data",

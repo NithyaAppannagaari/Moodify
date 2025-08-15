@@ -1,8 +1,8 @@
-export async function fetchOllamaResponse(labels: string[]): Promise<string | null> {
+export async function fetchOllamaResponse(labels: string[], localhost: string): Promise<string | null> {
     const prompt = `Generate words that can be used to describe songs that encapsulate an image with these items: ${labels.join(', ')}. Keep it short and use words that elicit the mood or vibe of an image with these objects.`;
   
     try {
-      const response = await fetch('http://localhost:11434/api/chat', {
+      const response = await fetch(`http://${localhost}:11434/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
