@@ -23,33 +23,30 @@ export default function Upload() {
 
         //console.log("labels detected: ", labels);
 
-        // convert labels to genre here
         const tempLabels = ["plant", "person", "book"];
-        const gns = ["pop", "rock"];
 
-        // const filteredGenres = await fetch(`http://192.168.2.59:3000/genres`, {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ labels: tempLabels, genres: gns}),
-        // });
+        // get all user tracks
+        const allTracks = await fetch(`http://192.168.2.59:3000/tracks`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
 
-        let filteredGenres = ['christmas', 'pop'];
-        console.log(filteredGenres);
+        const trackInfo = await allTracks.json();
+        console.log(trackInfo);
 
-        // get songs by genre
-        const matchingSongs = await fetch('http://192.168.2.59:3000/songsByGenre', {
+        // have ollama choose songs
+        const matchingSongs = await fetch('http://192.168.2.59:3000/chooseSongs', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({genres: filteredGenres}),
+          body: JSON.stringify({labels: tempLabels, tracks: trackInfo}),
         });
 
         const songsResult = await matchingSongs.json();
-
         console.log(songsResult);
 
         router.push({
             pathname: '/page',
-            params: { uri: imageUri, labels: JSON.stringify(tempLabels), userName: userName },
+            params: { uri: imageUri, songs: songsResult, userName: userName },
         });
     }
   }

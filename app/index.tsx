@@ -87,10 +87,10 @@ export default function HomeScreen() {
 
       const userData = await res.json();
 
-      // temporary labels list
-      const tempLabels = ["plant", "person", "book"];
-      const ollamaResponse = await fetchOllamaResponse(tempLabels, API_URL);
-      console.log("generated description: ", ollamaResponse);
+      // // temporary labels list
+      // const tempLabels = ["plant", "person", "book"];
+      // const ollamaResponse = await fetchOllamaResponse(tempLabels, API_URL);
+      // console.log("generated description: ", ollamaResponse);
 
       router.navigate({
         pathname: '/upload',

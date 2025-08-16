@@ -1,7 +1,7 @@
 import 'dotenv/config'; // automatically loads .env
 import express from 'express';
 import fetch from 'node-fetch';
-import getGenres from './ollama.js'; // assuming default export
+import { pickSongs } from './ollama.js'; // assuming default export
 
 const app = express();
 app.use(express.json());
@@ -14,6 +14,16 @@ const redirect_uri = process.env.SPOTIFY_REDIRECT_URI;
 
 app.get("/", (req, res) => {
   res.send("hello");
+});
+
+app.get('/tracks', async (req, res) => {
+  let result = [];
+
+  for (let track of tracks) {
+    result.push(`${track.songName} - ${track.artists.join()}`);
+  }
+
+  res.send(result);
 });
 
 app.post('/exchange', async (req, res) => {
@@ -52,6 +62,7 @@ app.post('/exchange', async (req, res) => {
         Authorization: `Bearer ${access_token}`,
       },
     });
+
     const topTracks = await topTracksRes.json();
 
     // --- Saved Tracks ---
@@ -85,40 +96,36 @@ app.post('/exchange', async (req, res) => {
       playlistTracks.push(...pts.items.map(item => item.track));
     }
 
-    // --- Collect Genres ---
-    const trackIds = new Set();
-
     const allTracks = [
       ...(topTracks.items || []),
       ...(savedTracks.items?.map(item => item.track) || []),
       ...playlistTracks,
     ];
 
+    console.log(allTracks);
+
     for (let track of allTracks) {
-      if (!track || !track.artists || track.artists.length === 0) continue;
+      let artistNames = [];
 
-      const artistId = track.artists[0].id;
-
-      try {
-        const genreResponse = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        });
-
-        const genreData = await genreResponse.json();
-        const genre = genreData.genres[0] || 'any';
-
-        tracks.add(JSON.stringify({ id: track.id, name: track.name, song: track.preview_url, genre }));
-      } catch (error) {
-        console.error(`Failed to fetch genre for artist ${artistId}:`, error);
+      for (let trackArtist of track.artists) {
+        artistNames.push(trackArtist.name);
       }
-    }
 
-    console.log("User:", user.display_name);
-    console.log("Collected tracks by genre:");
-    for (let t of tracks) {
-      console.log(JSON.parse(t));
+      const trackId = track.id;
+      const trackName = track.name;
+      const trackUrl = track.uri;
+
+      if (trackId != null && trackName != null && artistNames.length != 0 && trackUrl != null) {
+        const trackInfo = {
+          id: trackId,
+          songName: trackName,
+          artists: artistNames,
+          songUri: trackUrl
+        };
+  
+        // Add track info
+        tracks.add(trackInfo);
+      } 
     }
 
     res.json(user);
@@ -128,42 +135,19 @@ app.post('/exchange', async (req, res) => {
   }
 });
 
-app.post('/genres', async (req, res) => {
-  const { labels, genres } = req.body;
-  console.log(labels);
-  console.log(genres);
-
-  try {
-    const result = await getGenres(labels, genres);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: String(err) });
-  }
-});
-
-app.post("/songsByGenre", async (req, res) => {
-  const { genres } = req.body;
-  let songs = new Set();
-  let counter = 0;
-
-  const genreSet = new Set(genres);
-
-  console.log(genreSet);
-
+app.post("/chooseSongs", async (req, res) => {
+  const { labels, tracks } = req.body;
+  console.log("choosing songs from");
   console.log(tracks);
 
-  for (let track of tracks) {
-    let t = JSON.parse(track);
-    console.log("in here");
-    console.log(t.genre);
-    if (genreSet.has(t.genre) && counter < 10) {
-      console.log("adding track " + t.name);
-      songs.add(t.name);
-      counter += 1;
-    }
-  }
-
-  res.json(songs);
+  (async () => {
+    const result = await pickSongs(
+      labels,
+      tracks
+    );
+  
+    res.json(result);
+  })();
 });
 
 app.listen(3000, () => console.log('Server running on port 3000'));

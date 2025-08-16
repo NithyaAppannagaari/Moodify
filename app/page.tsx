@@ -4,6 +4,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
   const { userName } = useLocalSearchParams();
+  const { songs } = useLocalSearchParams();
 
   if (!uri) {
     return <Text>No image selected.</Text>;
@@ -47,7 +48,7 @@ export default function Page() {
 
       <View style={styles.finishContainer}>
         <Link 
-            href={{ pathname: '/final', params: {userName: userName}}} 
+            href={{ pathname: '/final', params: {userName: userName, songList: songs}}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>generate my playlist →</Text>

@@ -3,12 +3,13 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 
 export default function Final() {
   const { userName } = useLocalSearchParams();
-  
+  const { songList } = useLocalSearchParams();
+
   return (
+    
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.subtitle}>Thanks @{userName}!</Text>
-      <Text style={styles.text}>Check out your curated playlist below</Text>
-    
+      <Text style={styles.text}>Check out your curated playlist below:</Text>
       <View>
         <Image
             source={require('../assets/images/explaylist.png')}
