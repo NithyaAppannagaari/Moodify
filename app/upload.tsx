@@ -1,13 +1,16 @@
 import { HelloWave } from '@/components/HelloWave';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 
 export default function Upload() {
   const router = useRouter();
   const { userName } = useLocalSearchParams();
   const { apiUrl } = useLocalSearchParams();
+
+  const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -18,6 +21,7 @@ export default function Upload() {
     });
 
     if(!result.canceled) {
+        
         const imageUri = result.assets[0].uri;
         //const labels = await sendImageToModel(imageUri);
 
@@ -34,6 +38,8 @@ export default function Upload() {
         const trackInfo = await allTracks.json();
         console.log(trackInfo);
 
+        setLoading(true);
+
         // have ollama choose songs
         const matchingSongs = await fetch('http://192.168.2.59:3000/chooseSongs', {
           method: 'POST',
@@ -43,6 +49,8 @@ export default function Upload() {
 
         const songsResult = await matchingSongs.json();
         console.log(songsResult);
+
+        setLoading(false);
 
         router.push({
             pathname: '/page',
@@ -54,15 +62,25 @@ export default function Upload() {
   return (
     <View style={styles.container}>
         <Text style = {styles.moodify}>
-            Moodify
+              Moodify
         </Text>
         <View style = {styles.centerView}>
             <Text style = {styles.centerText}>Hi <Text style = {styles.spotibopText}>@{userName}!</Text> <HelloWave/></Text>
-                <Pressable style = {styles.button} onPress = {pickImage}>
-                    <Text style = {styles.buttonText}>Upload Image</Text>
+                
+            {loading ? (
+            <>
+              <Text style = {styles.labelText}>this might take a while...</Text>
+              <ActivityIndicator size="large" color="#1DB954" style={{ marginTop: 20 }} />
+            </>
+            ) : (<Pressable style = {styles.button} onPress = {pickImage}>
+                  <Text style = {styles.buttonText}>Upload Image</Text>
                 </Pressable>
+            )}
         </View>
+        
+      
     </View>
+    
   );
 }
 
@@ -88,6 +106,9 @@ const sendImageToModel = async (uri: string) => {
 };
 
 const styles = StyleSheet.create({
+  box: {
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5', 
@@ -138,5 +159,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'regular',
+  },
+  labelText: {
+    color: '#000000',
+    fontSize: 18,
+    paddingTop: 10,
+    fontWeight: 'regular',
+    textAlign: 'center'
   },
 });

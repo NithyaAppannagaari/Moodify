@@ -24,13 +24,13 @@ export default function Page() {
               <Text style={styles.buttonText}>new image</Text>
             </TouchableOpacity>
           </Link>
-          <Link 
+          {/* <Link 
             href={{ pathname: '/'}} 
             asChild >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>new song list</Text>
             </TouchableOpacity>
-          </Link>
+          </Link> */}
       </View>
       <View>
         <Image

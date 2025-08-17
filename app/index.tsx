@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   labelText: {
     color: '#000000',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'regular',
   },
   

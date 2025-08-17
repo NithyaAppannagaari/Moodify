@@ -56,15 +56,6 @@ app.post('/exchange', async (req, res) => {
     });
     const user = await userRes.json();
 
-    // --- Top Tracks ---
-    const topTracksRes = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=20', {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    });
-
-    const topTracks = await topTracksRes.json();
-
     // --- Saved Tracks ---
     const savedTracksRes = await fetch('https://api.spotify.com/v1/me/tracks?limit=20', {
       headers: {
@@ -97,7 +88,6 @@ app.post('/exchange', async (req, res) => {
     }
 
     const allTracks = [
-      ...(topTracks.items || []),
       ...(savedTracks.items?.map(item => item.track) || []),
       ...playlistTracks,
     ];
