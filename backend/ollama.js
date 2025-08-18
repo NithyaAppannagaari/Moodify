@@ -35,7 +35,7 @@ function chunkArray(arr, size) {
 
 export async function pickSongs(labels, tracks) {
   const BATCH_SIZE = 10; // small batch to avoid context window issues
-  const MAX_SONGS_TOTAL = 5;
+  const MAX_SONGS_TOTAL = 8;
 
   const batches = chunkArray(Array.from(tracks), BATCH_SIZE);
   let allParsed = [];
@@ -91,5 +91,7 @@ export async function pickSongs(labels, tracks) {
   // Enforce max total songs
   if (allParsed.length > MAX_SONGS_TOTAL) allParsed = allParsed.slice(0, MAX_SONGS_TOTAL);
   console.log(allParsed);
+
+
   return allParsed;
 }

@@ -1,17 +1,24 @@
 import { Link, useLocalSearchParams } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { WebView } from 'react-native-webview'; 
 
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
   const { userName } = useLocalSearchParams();
   const { songs } = useLocalSearchParams();
+  const { playlistName } = useLocalSearchParams();
+  const { playlistId } = useLocalSearchParams();
+
+  console.log(playlistId);
 
   if (!uri) {
     return <Text>No image selected.</Text>;
   }
 
+  const spotifyEmbedCode = `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator" width="95%" height="400" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView scrollEnabled = {false} contentContainerStyle={styles.container}>
       <View style={styles.generateNewContainer}>
         <Text style={styles.subtitle}>@{userName}'s page</Text>
           <Link 
@@ -39,14 +46,16 @@ export default function Page() {
         />
       </View>
 
-      <View>
-        <Image
-            source={require('../assets/images/song 1.png')}
-            style={styles.music}
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 600 }}>
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: spotifyEmbedCode }}
+          javaScriptEnabled
+          domStorageEnabled
         />
       </View>
 
-      <View style={styles.finishContainer}>
+      {/* <View style={styles.finishContainer}>
         <Link 
             href={{ pathname: '/final', params: {userName: userName, songList: songs}}} 
             asChild >
@@ -54,7 +63,7 @@ export default function Page() {
               <Text style={styles.buttonText}>generate my playlist →</Text>
             </TouchableOpacity>
         </Link>
-      </View>
+      </View> */}
     </ScrollView>
   );
 }
@@ -77,7 +86,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '600',
     color: '#333',
-    //marginBottom: 5,
     marginLeft: 15,
   },
   text: {
@@ -87,6 +95,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   generateNewContainer: {
+    paddingTop: 20,
     width: '100%',
     justifyContent: 'flex-start',
     flexDirection: 'row',
@@ -119,15 +128,10 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   image: {
+    paddingTop: 50,
     justifyContent: 'center',
     //marginLeft: 15,
     width: 320, 
     height: 400,
-  },
-  music: {
-    justifyContent: 'center',
-    marginTop: 15,
-    width: 320, 
-    height: 108,
   }
 });

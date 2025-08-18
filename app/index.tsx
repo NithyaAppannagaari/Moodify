@@ -1,8 +1,7 @@
 import * as AuthSession from 'expo-auth-session';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { fetchOllamaResponse } from '../backend/ollama';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // DEFINE CLIENT-SIDE CONSTANTS APPLICABLE TO ENTIRE APP
 const API_URL = 'http://192.168.2.59'; // this is your computer's IP address (the localhost of the server)
@@ -24,44 +23,11 @@ const loadingMessages = [
 
 export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
-  const [messageIndex, setMessageIndex] = useState(0);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  const animateMessage = () => {
-    // Fade in
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start(() => {
-      // Wait and fade out
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }).start(() => {
-          setMessageIndex((prevIndex) => (prevIndex + 1) % loadingMessages.length);
-        });
-      }, 18000); // 18 visible, 1s fade in, 1s fade out = 20s
-    });
-  };
-
-  useEffect(() => {
-    if (loading) {
-      animateMessage();
-      const interval = setInterval(() => {
-        animateMessage();
-      }, 20000); // Change message every 20 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [loading]);
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId: CLIENT_ID,
-      scopes: ['user-read-email', 'user-read-private', 'user-top-read', 'user-library-read', 'playlist-read-private', 'playlist-read-collaborative'],
+      scopes: ['ugc-image-upload','app-remote-control', 'user-modify-playback-state','user-read-email', 'user-read-private', 'user-top-read', 'user-library-read', 'playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-public', 'playlist-modify-private'],
       redirectUri: REDIRECT_URI,
       usePKCE: true,
     },
@@ -87,11 +53,6 @@ export default function HomeScreen() {
 
       const userData = await res.json();
 
-      // // temporary labels list
-      // const tempLabels = ["plant", "person", "book"];
-      // const ollamaResponse = await fetchOllamaResponse(tempLabels, API_URL);
-      // console.log("generated description: ", ollamaResponse);
-
       router.navigate({
         pathname: '/upload',
         params: { userName: userData["display_name"], apiURL: API_URL},
@@ -116,11 +77,9 @@ export default function HomeScreen() {
 
       {loading ? (
         <>
-          <Animated.Text
-            style={styles.labelText}
-          >
-            {loadingMessages[messageIndex]}
-          </Animated.Text>
+          <Text style={styles.labelText}>
+            loading...
+          </Text>
           <ActivityIndicator size="large" color="#1DB954" style={{ marginTop: 20 }} />
         </>
       ) : (

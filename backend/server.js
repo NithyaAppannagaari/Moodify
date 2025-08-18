@@ -7,6 +7,10 @@ const app = express();
 app.use(express.json());
 
 let tracks = new Set();
+let chosenSongUrls = new Set();
+let userId = "";
+let universalToken = "";
+let spotifyPlaylistName = "";
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -16,14 +20,52 @@ app.get("/", (req, res) => {
   res.send("hello");
 });
 
-app.get('/tracks', async (req, res) => {
-  let result = [];
+app.get('/chosenSongUrls', async (req, res) => {
+  const urlArray = Array.from(chosenSongUrls)
+  res.json(urlArray);
+});
 
-  for (let track of tracks) {
-    result.push(`${track.songName} - ${track.artists.join()}`);
+app.post('/createPlaylist', async (req, res) => {
+  try {
+    console.log(chosenSongUrls);
+    console.log(userId);
+
+    const playlistResponse = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${universalToken}`,
+      },
+      body: JSON.stringify(
+      {
+        "name": spotifyPlaylistName,
+        "description": "recs for your uploaded image",
+        "public": false
+      }),
+    });
+
+    if (!playlistResponse.ok) {
+      const errorText = await playlistResponse.text();
+      throw new Error(`Failed to create playlist: ${playlistResponse.status} - ${errorText}`);
+    }
+
+    const playlist = await playlistResponse.json();
+
+    // add tracks to created playlist
+    const newTracksResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks?uris=${Array.from(chosenSongUrls).join(',')}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${universalToken}`,
+    }});
+
+    if (!newTracksResponse.ok) {
+      const errorText = await newTracksResponse.text();
+      throw new Error(`Failed to add tracks to playlist: $(playlistResponse.status) - ${errorText}`);
+    }
+
+    res.json(playlist);
+  } catch (error) {
+    console.error("Error occurred while creating playlist or adding tracks:", error);
   }
-
-  res.send(result);
 });
 
 app.post('/exchange', async (req, res) => {
@@ -48,6 +90,7 @@ app.post('/exchange', async (req, res) => {
 
     const data = await response.json();
     const access_token = data.access_token;
+    universalToken = access_token;
 
     const userRes = await fetch('https://api.spotify.com/v1/me', {
       headers: {
@@ -55,6 +98,7 @@ app.post('/exchange', async (req, res) => {
       },
     });
     const user = await userRes.json();
+    userId = user.id;
 
     // --- Saved Tracks ---
     const savedTracksRes = await fetch('https://api.spotify.com/v1/me/tracks?limit=20', {
@@ -126,16 +170,35 @@ app.post('/exchange', async (req, res) => {
 });
 
 app.post("/chooseSongs", async (req, res) => {
-  const { labels, tracks } = req.body;
+  const { labels } = req.body;
+  
+  spotifyPlaylistName = labels;
+
+  let trackMap = {};
+
+  for (const track of tracks) {
+    trackMap[`${track.songName} - ${track.artists.join()}`] = track.songUri;
+    console.log(trackMap[`${track.songName} - ${track.artists.join()}`]);
+  }
+
   console.log("choosing songs from");
-  console.log(tracks);
+  console.log(trackMap);
 
   (async () => {
     const result = await pickSongs(
       labels,
-      tracks
+      Object.keys(trackMap)
     );
-  
+
+    // The result will be the keys to the song urls
+    for (let keyValue of result) {
+      let keyValueString = `${keyValue.name} - ${keyValue.artists.join()}`;
+      if (keyValueString in trackMap) {
+        chosenSongUrls.add(trackMap[keyValueString]);
+      }
+    }
+
+    console.log(chosenSongUrls);
     res.json(result);
   })();
 });

@@ -23,38 +23,50 @@ export default function Upload() {
     if(!result.canceled) {
         
         const imageUri = result.assets[0].uri;
+
         //const labels = await sendImageToModel(imageUri);
 
         //console.log("labels detected: ", labels);
 
         const tempLabels = ["plant", "person", "book"];
-
-        // get all user tracks
-        const allTracks = await fetch(`http://192.168.2.59:3000/tracks`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
-
-        const trackInfo = await allTracks.json();
-        console.log(trackInfo);
-
         setLoading(true);
 
         // have ollama choose songs
         const matchingSongs = await fetch('http://192.168.2.59:3000/chooseSongs', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({labels: tempLabels, tracks: trackInfo}),
+          body: JSON.stringify({labels: tempLabels}),
         });
 
         const songsResult = await matchingSongs.json();
         console.log(songsResult);
 
+        // get the song urls
+        const songUrls = await fetch('http://192.168.2.59:3000/chosenSongUrls', {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json'},
+        });
+
+        const songUrlsResult = await songUrls.json();
+
+        // make playlist from song urls
+        const createdPlaylist = await fetch('http://192.168.2.59:3000/createPlaylist', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(songUrlsResult)
+        });
+
+        const createdPlaylistResult = await createdPlaylist.json();
+        console.log(createdPlaylistResult);
+
+        const createdPlaylistName = createdPlaylistResult.name;
+        const createdPlaylistId = createdPlaylistResult.id;
+
         setLoading(false);
 
         router.push({
             pathname: '/page',
-            params: { uri: imageUri, songs: songsResult, userName: userName },
+            params: { uri: imageUri, songs: songsResult, userName: userName, playlistName: createdPlaylistName, playlistId: createdPlaylistId },
         });
     }
   }
@@ -77,7 +89,6 @@ export default function Upload() {
                 </Pressable>
             )}
         </View>
-        
       
     </View>
     
