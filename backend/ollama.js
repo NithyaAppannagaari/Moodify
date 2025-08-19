@@ -22,6 +22,7 @@ function parseDoubleEncodedArrayJSON(raw) {
       content = content.slice(firstBracket, lastBracket + 1);
     }
   }
+  
   return JSON.parse(content);
 }
 
@@ -34,35 +35,40 @@ function chunkArray(arr, size) {
 }
 
 export async function pickSongs(labels, tracks) {
-  const BATCH_SIZE = 10; // small batch to avoid context window issues
-  const MAX_SONGS_TOTAL = 8;
+  const BATCH_SIZE = 25; // small batch to avoid context window issues
+  const MAX_SONGS_TOTAL = 10;
+  
+  const batches = chunkArray(Array.from([...tracks].sort(() => Math.random() - 0.5)), BATCH_SIZE);
+  const SONGS_PER_BATCH = Math.ceil(MAX_SONGS_TOTAL / batches.length);
 
-  const batches = chunkArray(Array.from(tracks), BATCH_SIZE);
   let allParsed = [];
 
   for (const batch of batches) {
     const prompt = `
-    You are a JSON-generating assistant.
+      You are a music curator for Instagram Stories. These stories are made by college students who are up with the trends and wants music that will make the stories Pinterest-appealing and aesthetic.. Choose songs that match the vibe and mood of the content.
 
-    Labels describing an image or scene:
-    ${JSON.stringify(labels)}
+      Instagram Story content:
+      ${JSON.stringify(labels)}
 
-    Choose up to ${MAX_SONGS_TOTAL} songs ONLY from this list:
-    ${batch.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+      Choose up to ${SONGS_PER_BATCH} songs ONLY from this list that would create the perfect background mood:
+      ${batch.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 
-    ⚠️ IMPORTANT:
-    - Return ONLY a JSON array of objects in this format:
-    [
-    { "name": "Song Title", "artists": ["Artist Name"] }
-    ]
-    - Do NOT invent songs not in the given list
-    - Include "artists"; if unknown, use ["Unknown"]
-    - Always return an array, even if empty
-    `;
+      Consider:
+      - What emotions or energy does this Story convey?
+      - What songs would enhance the viewer's experience?
+      - What matches the aesthetic or theme?
+
+      ⚠️ STRICT FORMAT:
+      - Return ONLY a JSON array: [{"name": "Song Title", "artists": ["Artist Name"]}]
+      - NO backticks, quotes around names, or special characters
+      - ONLY choose from the numbered list above
+      - If no songs fit the vibe, return []
+      - Use ["Unknown"] for artists if unsure
+      `;
 
     let parsed = [];
     let attempts = 0;
-    const MAX_RETRIES = 3;
+    const MAX_RETRIES = 5;
 
     while (parsed.length === 0 && attempts < MAX_RETRIES) {
       attempts++;
@@ -74,6 +80,11 @@ export async function pickSongs(labels, tracks) {
         });
 
         parsed = SongsArraySchema.parse(parseDoubleEncodedArrayJSON(response.message.content));
+
+        parsed = parsed.map(song => ({
+          name: song.name.replace(/[`'"]/g, '').trim(),
+          artists: song.artists.map(artist => artist.replace(/[`'"]/g, '').trim())
+        }));
 
         // Keep only songs in the batch (extra safety)
         parsed = parsed.filter(s => batch.some(t => t.includes(s.name)));
@@ -91,7 +102,6 @@ export async function pickSongs(labels, tracks) {
   // Enforce max total songs
   if (allParsed.length > MAX_SONGS_TOTAL) allParsed = allParsed.slice(0, MAX_SONGS_TOTAL);
   console.log(allParsed);
-
 
   return allParsed;
 }

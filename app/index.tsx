@@ -14,13 +14,6 @@ const discovery = {
 };
 const router = useRouter();
 
-const loadingMessages = [
-  "loading...",
-  "finding the best playlists...",
-  "getting your fav songs...",
-  "almost there...",
-];
-
 export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
 

@@ -4,7 +4,10 @@ import fetch from 'node-fetch';
 import { pickSongs } from './ollama.js'; // assuming default export
 
 const app = express();
-app.use(express.json());
+// Increase JSON payload limit to 50MB
+app.use(express.json({ limit: '50mb' }));
+// Increase URL-encoded payload limit to 50MB
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 let tracks = new Set();
 let chosenSongUrls = new Set();
@@ -20,12 +23,9 @@ app.get("/", (req, res) => {
   res.send("hello");
 });
 
-app.get('/chosenSongUrls', async (req, res) => {
-  const urlArray = Array.from(chosenSongUrls)
-  res.json(urlArray);
-});
-
 app.post('/createPlaylist', async (req, res) => {
+  const { labels } = req.body;
+
   try {
     console.log(chosenSongUrls);
     console.log(userId);
@@ -37,7 +37,7 @@ app.post('/createPlaylist', async (req, res) => {
       },
       body: JSON.stringify(
       {
-        "name": spotifyPlaylistName,
+        "name": labels.join(", "),
         "description": "recs for your uploaded image",
         "public": false
       }),
@@ -59,8 +59,23 @@ app.post('/createPlaylist', async (req, res) => {
 
     if (!newTracksResponse.ok) {
       const errorText = await newTracksResponse.text();
-      throw new Error(`Failed to add tracks to playlist: $(playlistResponse.status) - ${errorText}`);
+      throw new Error(`Failed to add tracks to playlist: ${newTracksResponse.status} - ${errorText}`);
     }
+
+    // // add image to created playlist
+    // const addImageResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/images`, {
+    //   method: 'PUT', 
+    //   headers: {
+    //     Authorization: `Bearer ${universalToken}`,
+    //     "Content-Type": "image/jpeg"
+    //   },
+    //   body: playlistImage
+    // });
+
+    // if (!addImageResponse.ok) {
+    //   const errorText = await newTracksResponse.text();
+    //   throw new Error(`Failed to add cover image to playlist: ${addImageResponse.status} - ${errorText}`);
+    // }
 
     res.json(playlist);
   } catch (error) {
@@ -171,8 +186,10 @@ app.post('/exchange', async (req, res) => {
 
 app.post("/chooseSongs", async (req, res) => {
   const { labels } = req.body;
+  chosenSongUrls = new Set();
   
   spotifyPlaylistName = labels;
+  console.log(spotifyPlaylistName);
 
   let trackMap = {};
 
@@ -190,6 +207,8 @@ app.post("/chooseSongs", async (req, res) => {
       Object.keys(trackMap)
     );
 
+    console.log(result);
+
     // The result will be the keys to the song urls
     for (let keyValue of result) {
       let keyValueString = `${keyValue.name} - ${keyValue.artists.join()}`;
@@ -199,7 +218,7 @@ app.post("/chooseSongs", async (req, res) => {
     }
 
     console.log(chosenSongUrls);
-    res.json(result);
+    res.json(chosenSongUrls);
   })();
 });
 

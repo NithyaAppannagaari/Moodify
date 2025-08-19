@@ -1,12 +1,11 @@
 import { Link, useLocalSearchParams } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { Linking, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { WebView } from 'react-native-webview'; 
 
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
   const { userName } = useLocalSearchParams();
-  const { songs } = useLocalSearchParams();
-  const { playlistName } = useLocalSearchParams();
+  const { playlistUrl } = useLocalSearchParams();
   const { playlistId } = useLocalSearchParams();
 
   console.log(playlistId);
@@ -16,6 +15,10 @@ export default function Page() {
   }
 
   const spotifyEmbedCode = `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator" width="95%" height="400" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+
+  const openSpotifyPlaylist = () => {
+    Linking.openURL(playlistUrl.toString());
+  };
 
   return (
     <ScrollView scrollEnabled = {false} contentContainerStyle={styles.container}>
@@ -31,14 +34,8 @@ export default function Page() {
               <Text style={styles.buttonText}>new image</Text>
             </TouchableOpacity>
           </Link>
-          {/* <Link 
-            href={{ pathname: '/'}} 
-            asChild >
-            <TouchableOpacity style={styles.newButton}>
-              <Text style={styles.buttonText}>new song list</Text>
-            </TouchableOpacity>
-          </Link> */}
       </View>
+
       <View>
         <Image
             source={{uri}}
@@ -55,15 +52,11 @@ export default function Page() {
         />
       </View>
 
-      {/* <View style={styles.finishContainer}>
-        <Link 
-            href={{ pathname: '/final', params: {userName: userName, songList: songs}}} 
-            asChild >
-            <TouchableOpacity style={styles.newButton}>
-              <Text style={styles.buttonText}>generate my playlist →</Text>
-            </TouchableOpacity>
-        </Link>
-      </View> */}
+      <View style={styles.finishContainer}>
+        <TouchableOpacity style={styles.newButton} onPress={openSpotifyPlaylist}>
+          <Text style={styles.buttonText}>view my playlist →</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -116,8 +109,6 @@ const styles = StyleSheet.create({
     margin: 12,
     marginHorizontal: -10,
     marginLeft: 15,
-    //borderColor: 'gray',
-    //borderWidth: 1,
     borderRadius: 20,
     padding: 6,
     paddingHorizontal: 12,
@@ -130,7 +121,6 @@ const styles = StyleSheet.create({
   image: {
     paddingTop: 50,
     justifyContent: 'center',
-    //marginLeft: 15,
     width: 320, 
     height: 400,
   }
