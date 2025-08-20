@@ -1,24 +1,17 @@
 import { Link, useLocalSearchParams } from 'expo-router';
-import { Linking, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { WebView } from 'react-native-webview'; 
 
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
-  const { userName } = useLocalSearchParams();
-  const { playlistUrl } = useLocalSearchParams();
-  const { playlistId } = useLocalSearchParams();
-
-  console.log(playlistId);
+  const userName = "spotibop"; // Next week, we'll make this the actual user's name once we set up the log-in!
 
   if (!uri) {
     return <Text>No image selected.</Text>;
   }
 
-  const spotifyEmbedCode = `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator" width="95%" height="400" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-
-  const openSpotifyPlaylist = () => {
-    Linking.openURL(playlistUrl.toString());
-  };
+  // This is how we can embed a Spotify Playlist within the app
+  const spotifyEmbedCode = `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/4zFyrEyNC2pc0FgUc8TFah?utm_source=generator" width="95%" height="400" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
 
   return (
     <ScrollView scrollEnabled = {false} contentContainerStyle={styles.container}>
@@ -53,7 +46,7 @@ export default function Page() {
       </View>
 
       <View style={styles.finishContainer}>
-        <TouchableOpacity style={styles.newButton} onPress={openSpotifyPlaylist}>
+        <TouchableOpacity style={styles.newButton}>
           <Text style={styles.buttonText}>view my playlist →</Text>
         </TouchableOpacity>
       </View>
