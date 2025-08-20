@@ -4,7 +4,7 @@ import { WebView } from 'react-native-webview';
 
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
-  const userName = "spotibop"; // Next week, we'll make this the actual user's name once we set up the log-in!
+  const { name } = useLocalSearchParams(); 
 
   if (!uri) {
     return <Text>No image selected.</Text>;
@@ -16,17 +16,11 @@ export default function Page() {
   return (
     <ScrollView scrollEnabled = {false} contentContainerStyle={styles.container}>
       <View style={styles.generateNewContainer}>
-        <Text style={styles.subtitle}>@{userName}'s page</Text>
-          <Link 
-            href={{ 
-              pathname: '/upload',
-              params: {userName: userName}
-            }} 
-            asChild >
-            <TouchableOpacity style={styles.newButton}>
-              <Text style={styles.buttonText}>new image</Text>
-            </TouchableOpacity>
-          </Link>
+        <Text style={styles.subtitle}>@{name}'s page</Text>
+          { /* Add a button here that says "new image" and navigates to the "upload" page. Remember, the "upload"
+          page takes in a username as a parameter! */ }
+          { /* Hint #1: You can use "index.tsx" for reference! */ }
+          { /* Hint #2: You might need to create a method to handle the routing when this button is pressed */ }
       </View>
 
       <View>

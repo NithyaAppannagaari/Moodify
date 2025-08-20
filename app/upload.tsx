@@ -1,28 +1,33 @@
 import { HelloWave } from '@/components/HelloWave';
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+/** TODO: This page is incomplete. Fill it out so it works as expected! */
 export default function Upload() {
   const router = useRouter();
-  const userName = "spotibop"; // Next week, we'll make this the actual user's name once we set up the log-in!
+  const { userName } = useLocalSearchParams(); // This is how we can receive data from other pages
  
   const pickImage = async () => {
+    /**
+     * Add in the image upload functionality
+     */
     let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [4,3],
-        quality: 1,
-        base64: true
-    });
+      /**
+       * Fill this in! (After routing -- we'll focus on setting up routing first!)
+       */
+    }); 
 
     if(!result.canceled) {
-        const imageUri = result.assets[0].uri;
-        
-        router.push({
-            pathname: '/page',
-            params: { uri: imageUri },
-        });
+        const imageUri = "exampleUri"; /** Fill this in! */
+
+        /**
+         * Replace this comment with the logic to navigate to "page.tsx". 
+         * We want to send "page.tsx" the imageUri and the userName.
+         * Take a look at "page.tsx" to see what they're naming their search parameters.
+         * 
+         * Hint: Use "index.tsx" as a reference for how to navigate between pages.
+         */
     }
   }
 

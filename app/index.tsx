@@ -2,12 +2,20 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+// 1. Define the router
 const router = useRouter();
+
+// Next week, this will be accurate once we set up log-in functionality
+const spotifyLoginName = "spotibop";
 
 export default function HomeScreen() {
   const navigate = () => {
+    /**
+     * This is how we can use expo-router to navigate between pages.
+     */
     router.push({
-      pathname: '/upload'
+      pathname: '/upload', // The '/' is the file path relative to the location of the "app" directory
+      params: { userName : spotifyLoginName}
   });
   }
 
@@ -24,7 +32,8 @@ export default function HomeScreen() {
       </View>
 
       <Pressable style={styles.button} onPress={() => navigate()}>
-          <Text style={styles.buttonText}>Log in with Spotify</Text> // We'll add the log-in functionality next week!!
+          <Text style={styles.buttonText}>Log in with Spotify</Text> 
+          {/* We'll add the log-in functionality next week!! */}
       </Pressable>
 
     </ScrollView>
