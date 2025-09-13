@@ -62,21 +62,6 @@ app.post('/createPlaylist', async (req, res) => {
       throw new Error(`Failed to add tracks to playlist: ${newTracksResponse.status} - ${errorText}`);
     }
 
-    // // add image to created playlist
-    // const addImageResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/images`, {
-    //   method: 'PUT', 
-    //   headers: {
-    //     Authorization: `Bearer ${universalToken}`,
-    //     "Content-Type": "image/jpeg"
-    //   },
-    //   body: playlistImage
-    // });
-
-    // if (!addImageResponse.ok) {
-    //   const errorText = await newTracksResponse.text();
-    //   throw new Error(`Failed to add cover image to playlist: ${addImageResponse.status} - ${errorText}`);
-    // }
-
     res.json(playlist);
   } catch (error) {
     console.error("Error occurred while creating playlist or adding tracks:", error);
@@ -92,6 +77,8 @@ app.post('/exchange', async (req, res) => {
   params.append('code', code);
   params.append('redirect_uri', redirect_uri);
   params.append('code_verifier', code_verifier);
+
+  console.log("in here");
 
   try {
     const response = await fetch('https://accounts.spotify.com/api/token', {
@@ -185,10 +172,10 @@ app.post('/exchange', async (req, res) => {
 });
 
 app.post("/chooseSongs", async (req, res) => {
-  const { labels } = req.body;
+  const { imageData } = req.body; // imageData should be base 64 encoded image
   chosenSongUrls = new Set();
   
-  spotifyPlaylistName = labels;
+  spotifyPlaylistName = "Moodify's Chosen Songs!";
   console.log(spotifyPlaylistName);
 
   let trackMap = {};
@@ -203,7 +190,7 @@ app.post("/chooseSongs", async (req, res) => {
 
   (async () => {
     const result = await pickSongs(
-      labels,
+      imageData,
       Object.keys(trackMap)
     );
 

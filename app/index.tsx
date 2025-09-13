@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // DEFINE CLIENT-SIDE CONSTANTS APPLICABLE TO ENTIRE APP
-const API_URL = 'http://192.168.2.59'; // this is your computer's IP address (the localhost of the server)
+const API_URL = 'http://10.40.94.178'; // this is your computer's IP address (the localhost of the server)
 const CLIENT_ID = '2e327947bec246929a9c902ab76e5172';
 const REDIRECT_URI = AuthSession.makeRedirectUri();
 

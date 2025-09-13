@@ -7,6 +7,7 @@ export default function Page() {
   const { userName } = useLocalSearchParams();
   const { playlistUrl } = useLocalSearchParams();
   const { playlistId } = useLocalSearchParams();
+  const { apiURL } = useLocalSearchParams();
 
   console.log(playlistId);
 
@@ -27,7 +28,7 @@ export default function Page() {
           <Link 
             href={{ 
               pathname: '/upload',
-              params: {userName: userName}
+              params: {userName: userName, apiURL: apiURL}
             }} 
             asChild >
             <TouchableOpacity style={styles.newButton}>

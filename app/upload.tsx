@@ -8,6 +8,7 @@ import ImageResizer from 'react-native-image-resizer';
 export default function Upload() {
   const router = useRouter();
   const { userName } = useLocalSearchParams();
+  const { apiURL } = useLocalSearchParams();
 
   const [loading, setLoading] = useState(false);
 
@@ -22,25 +23,23 @@ export default function Upload() {
 
     if(!result.canceled) {
         const imageUri = result.assets[0].uri;
+        const base64 = result.assets[0].base64;
         setLoading(true);
-        //const labels = await sendImageToModel(imageUri);
 
-        //console.log("labels detected: ", labels);
-
-        const tempLabels = ["campanile", "grass", "girl", "girl", "jacket"];
+        const tempLabels = ["matcha", "table", "cafe"];
 
         // have ollama choose songs
-        let chosenSongs = await fetch('http://192.168.2.59:3000/chooseSongs', {
+        let chosenSongs = await fetch(`${apiURL}:3000/chooseSongs`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({labels: tempLabels}),
+          body: JSON.stringify({imageData: base64}),
         });
 
         const chosenSongsResult = await chosenSongs.json();
         console.log(chosenSongsResult);
 
         // make playlist
-        const createdPlaylist = await fetch('http://192.168.2.59:3000/createPlaylist', {
+        const createdPlaylist = await fetch(`${apiURL}:3000/createPlaylist`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({labels: tempLabels})
@@ -54,7 +53,7 @@ export default function Upload() {
 
         router.push({
             pathname: '/page',
-            params: { uri: imageUri, userName: userName, playlistId: createdPlaylistId, playlistUrl: createdPlaylistUrl },
+            params: { uri: imageUri, userName: userName, playlistId: createdPlaylistId, playlistUrl: createdPlaylistUrl, apiURL: apiURL },
         });
     }
   }

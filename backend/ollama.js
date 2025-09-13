@@ -34,7 +34,7 @@ function chunkArray(arr, size) {
   return result;
 }
 
-export async function pickSongs(labels, tracks) {
+export async function pickSongs(imageData, tracks) {
   const BATCH_SIZE = 25; // small batch to avoid context window issues
   const MAX_SONGS_TOTAL = 10;
   
@@ -45,10 +45,9 @@ export async function pickSongs(labels, tracks) {
 
   for (const batch of batches) {
     const prompt = `
-      You are a music curator for Instagram Stories. These stories are made by college students who are up with the trends and wants music that will make the stories Pinterest-appealing and aesthetic.. Choose songs that match the vibe and mood of the content.
+      You are a music curator for Instagram Stories. These stories are made by college students who are up with the trends and wants music that will make the stories Pinterest-appealing and aesthetic. Choose songs that match the vibe and mood of the image content.
 
-      Instagram Story content:
-      ${JSON.stringify(labels)}
+      The Instagram story content is the image that is passed to you.
 
       Choose up to ${SONGS_PER_BATCH} songs ONLY from this list that would create the perfect background mood:
       ${batch.map((s, i) => `${i + 1}. ${s}`).join('\n')}
@@ -73,9 +72,10 @@ export async function pickSongs(labels, tracks) {
     while (parsed.length === 0 && attempts < MAX_RETRIES) {
       attempts++;
       try {
+        console.log("asking the model!");
         const response = await ollama.chat({
-          model: 'mistral:7b-instruct',
-          messages: [{ role: 'user', content: prompt }],
+          model: 'llava', // image model
+          messages: [{ role: 'user', content: prompt, images: [imageData] }],
           format: zodToJsonSchema(SongsArraySchema),
         });
 
