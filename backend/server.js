@@ -13,7 +13,6 @@ let tracks = new Set();
 let chosenSongUrls = new Set();
 let userId = "";
 let universalToken = "";
-let spotifyPlaylistName = "";
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -24,12 +23,9 @@ app.get("/", (req, res) => {
 });
 
 app.post('/createPlaylist', async (req, res) => {
-  const { labels } = req.body;
+  const { playlistTitle } = req.body;
 
   try {
-    console.log(chosenSongUrls);
-    console.log(userId);
-
     const playlistResponse = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
       method: 'POST',
       headers: {
@@ -37,7 +33,7 @@ app.post('/createPlaylist', async (req, res) => {
       },
       body: JSON.stringify(
       {
-        "name": labels.join(", "),
+        "name": playlistTitle,
         "description": "recs for your uploaded image",
         "public": false
       }),
@@ -175,9 +171,6 @@ app.post("/chooseSongs", async (req, res) => {
   const { imageData } = req.body; // imageData should be base 64 encoded image
   chosenSongUrls = new Set();
   
-  spotifyPlaylistName = "Moodify's Chosen Songs!";
-  console.log(spotifyPlaylistName);
-
   let trackMap = {};
 
   for (const track of tracks) {
@@ -185,16 +178,11 @@ app.post("/chooseSongs", async (req, res) => {
     console.log(trackMap[`${track.songName} - ${track.artists.join()}`]);
   }
 
-  console.log("choosing songs from");
-  console.log(trackMap);
-
   (async () => {
     const result = await pickSongs(
       imageData,
       Object.keys(trackMap)
     );
-
-    console.log(result);
 
     // The result will be the keys to the song urls
     for (let keyValue of result) {
@@ -204,7 +192,6 @@ app.post("/chooseSongs", async (req, res) => {
       }
     }
 
-    console.log(chosenSongUrls);
     res.json(chosenSongUrls);
   })();
 });

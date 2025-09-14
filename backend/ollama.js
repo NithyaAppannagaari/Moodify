@@ -30,13 +30,26 @@ function parseDoubleEncodedArrayJSON(raw) {
 function chunkArray(arr, size) {
   const result = [];
   for (let i = 0; i < arr.length; i += size) result.push(arr.slice(i, i + size));
-  console.log(result);
   return result;
 }
 
+async function getImageDescription(imageData) {
+  const response = await ollama.chat({
+      model: 'llava', // this model takes in text and outputs text
+      messages: [{ role: 'user', content: "Identify 10 main objects in the image that describe it best. Use at most 3 words per label. Do NOT include any sentences, explanations, or numbering. Return ONLY an array of short labels. Example: [\"cat\", \"table\", \"window\", \"lamp\"]", images: [imageData] }],
+  });
+ 
+  return response.message.content;
+}
+
+// we'll switch it up a bit:
+// 1) we'll ask the LLaVa model to identify objects from images
+// 2) then, we'll use that as labels to ask llama, since that was working well before
 export async function pickSongs(imageData, tracks) {
-  const BATCH_SIZE = 25; // small batch to avoid context window issues
-  const MAX_SONGS_TOTAL = 10;
+  // FIRST, ask LLaVA model to get objects from image
+  const imageDescription = await getImageDescription(imageData);
+  const BATCH_SIZE = 30; // small batch to avoid context window issues
+  const MAX_SONGS_TOTAL = 15;
   
   const batches = chunkArray(Array.from([...tracks].sort(() => Math.random() - 0.5)), BATCH_SIZE);
   const SONGS_PER_BATCH = Math.ceil(MAX_SONGS_TOTAL / batches.length);
@@ -45,11 +58,11 @@ export async function pickSongs(imageData, tracks) {
 
   for (const batch of batches) {
     const prompt = `
-      You are a music curator for Instagram Stories. These stories are made by college students who are up with the trends and wants music that will make the stories Pinterest-appealing and aesthetic. Choose songs that match the vibe and mood of the image content.
+      You are a music curator for Instagram Stories. These stories are made by college students who are up with the trends and wants music that will make the stories Pinterest-appealing and aesthetic. Choose songs that match the vibe and mood of the content. 
+      
+      Labels describing the Instagram Story image or scene: ${imageDescription}.
 
-      The Instagram story content is the image that is passed to you.
-
-      Choose up to ${SONGS_PER_BATCH} songs ONLY from this list that would create the perfect background mood:
+      Choose up to ${SONGS_PER_BATCH} songs ONLY from the following list that would create the perfect background mood:
       ${batch.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 
       Consider:
@@ -72,10 +85,9 @@ export async function pickSongs(imageData, tracks) {
     while (parsed.length === 0 && attempts < MAX_RETRIES) {
       attempts++;
       try {
-        console.log("asking the model!");
         const response = await ollama.chat({
-          model: 'llava', // image model
-          messages: [{ role: 'user', content: prompt, images: [imageData] }],
+          model: 'mistral:7b-instruct',
+          messages: [{ role: 'user', content: prompt }],
           format: zodToJsonSchema(SongsArraySchema),
         });
 
@@ -101,7 +113,6 @@ export async function pickSongs(imageData, tracks) {
 
   // Enforce max total songs
   if (allParsed.length > MAX_SONGS_TOTAL) allParsed = allParsed.slice(0, MAX_SONGS_TOTAL);
-  console.log(allParsed);
 
   return allParsed;
 }

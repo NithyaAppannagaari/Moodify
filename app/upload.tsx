@@ -2,60 +2,63 @@ import { HelloWave } from '@/components/HelloWave';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import ImageResizer from 'react-native-image-resizer';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function Upload() {
   const router = useRouter();
   const { userName } = useLocalSearchParams();
   const { apiURL } = useLocalSearchParams();
+  const { inputBase64 } = useLocalSearchParams();
+  const { inputImageUri } = useLocalSearchParams();
 
   const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [4,3],
-        quality: 1,
-        base64: true
+
+    let imageUri = inputImageUri;
+    let base64: string = (Array.isArray(inputBase64) ? inputBase64[0] : inputBase64) ?? "";
+
+    if (!inputImageUri && !inputBase64) {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [4,3],
+            quality: 1,
+            base64: true
+        });
+
+        if(!result.canceled) {
+            imageUri = result.assets[0].uri;
+            base64 = result.assets[0].base64 ?? ""; 
+        }
+    }
+
+    setLoading(true);
+    
+    // have ollama choose songs
+    await fetch(`${apiURL}:3000/chooseSongs`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({imageData: base64}),
     });
 
-    if(!result.canceled) {
-        const imageUri = result.assets[0].uri;
-        const base64 = result.assets[0].base64;
-        setLoading(true);
+    // make playlist
+    const createdPlaylist = await fetch(`${apiURL}:3000/createPlaylist`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({playlistTitle: "moodify's chosen songs!"})
+    });
 
-        const tempLabels = ["matcha", "table", "cafe"];
+    const createdPlaylistResult = await createdPlaylist.json();
+    const createdPlaylistId = createdPlaylistResult.id;
+    const createdPlaylistUrl = createdPlaylistResult.external_urls.spotify;
 
-        // have ollama choose songs
-        let chosenSongs = await fetch(`${apiURL}:3000/chooseSongs`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({imageData: base64}),
-        });
+    setLoading(false);
 
-        const chosenSongsResult = await chosenSongs.json();
-        console.log(chosenSongsResult);
-
-        // make playlist
-        const createdPlaylist = await fetch(`${apiURL}:3000/createPlaylist`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({labels: tempLabels})
-        });
-
-        const createdPlaylistResult = await createdPlaylist.json();
-        const createdPlaylistId = createdPlaylistResult.id;
-        const createdPlaylistUrl = createdPlaylistResult.external_urls.spotify;
-
-        setLoading(false);
-
-        router.push({
-            pathname: '/page',
-            params: { uri: imageUri, userName: userName, playlistId: createdPlaylistId, playlistUrl: createdPlaylistUrl, apiURL: apiURL },
-        });
-    }
+    router.push({
+      pathname: '/page',
+      params: { uri: imageUri, base64: base64, userName: userName, playlistId: createdPlaylistId, playlistUrl: createdPlaylistUrl, apiURL: apiURL },
+    });
   }
 
   return (

@@ -1,13 +1,16 @@
-import { Link, useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { Linking, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { WebView } from 'react-native-webview'; 
 
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
+  const { base64 } = useLocalSearchParams();
   const { userName } = useLocalSearchParams();
   const { playlistUrl } = useLocalSearchParams();
   const { playlistId } = useLocalSearchParams();
   const { apiURL } = useLocalSearchParams();
+
+  const router = useRouter();
 
   console.log(playlistId);
 
@@ -20,6 +23,13 @@ export default function Page() {
   const openSpotifyPlaylist = () => {
     Linking.openURL(playlistUrl.toString());
   };
+
+  const tryNewPlaylist = async() => {
+    router.push({
+      pathname: '/upload',
+      params: { inputUri: uri, inputBase64: base64, userName: userName, apiURL: apiURL },
+    });
+  }
 
   return (
     <ScrollView scrollEnabled = {false} contentContainerStyle={styles.container}>
@@ -56,6 +66,12 @@ export default function Page() {
       <View style={styles.finishContainer}>
         <TouchableOpacity style={styles.newButton} onPress={openSpotifyPlaylist}>
           <Text style={styles.buttonText}>view my playlist →</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.finishContainer}>
+        <TouchableOpacity style={styles.newButton} onPress = {tryNewPlaylist}>
+          <Text style={styles.buttonText}>try new playlist →</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
