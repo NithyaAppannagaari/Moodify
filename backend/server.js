@@ -22,6 +22,33 @@ app.get("/", (req, res) => {
   res.send("hello");
 });
 
+app.post('/getPlaylistTracks', async (req, res) => {
+  const { PLAYLIST_ID } = req.body;
+
+  try {
+    const result = await fetch(
+      `https://api.spotify.com/v1/playlists/${PLAYLIST_ID}/tracks`,
+      {
+        headers: {
+          Authorization: `Bearer ${universalToken}`,
+        },
+      }
+    );
+
+    if (!result.ok) {
+      // Spotify returned an error
+      const text = await result.text(); // sometimes JSON, sometimes HTML
+      return res.status(result.status).send(text);
+    }
+
+    const data = await result.json(); // <-- parse JSON from Spotify
+    res.json(data); // <-- send actual JSON to your frontend
+  } catch (err) {
+    console.error("Error fetching playlist tracks:", err);
+    res.status(500).json({ error: "Failed to fetch playlist tracks" });
+  }
+});
+
 app.post('/createPlaylist', async (req, res) => {
   const { playlistTitle } = req.body;
 

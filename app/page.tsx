@@ -1,6 +1,6 @@
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { Linking, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import { WebView } from 'react-native-webview'; 
+import { Link, useLocalSearchParams } from 'expo-router';
+import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import PlaylistPlayer from './songs';
 
 export default function Page() {
   const { uri } = useLocalSearchParams<{ uri?: string }>();
@@ -9,107 +9,83 @@ export default function Page() {
   const { playlistId } = useLocalSearchParams();
   const { apiURL } = useLocalSearchParams();
 
+  const playlistIdStr = Array.isArray(playlistId) ? playlistId[0] : playlistId || "";
+  const apiURLStr = Array.isArray(apiURL) ? apiURL[0] : apiURL || "";
+
   if (!uri) {
     return <Text>No image selected.</Text>;
   }
 
-  const spotifyEmbedCode = `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator" width="95%" height="400" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-
   const openSpotifyPlaylist = () => {
-    Linking.openURL(playlistUrl.toString());
+    if (playlistUrl) {
+      const urlStr = Array.isArray(playlistUrl) ? playlistUrl[0] : playlistUrl;
+      Linking.openURL(urlStr);
+    }
   };
 
   return (
-    <ScrollView scrollEnabled = {false} contentContainerStyle={styles.container}>
-      <View style={styles.generateNewContainer}>
-        <Text style={styles.subtitle}>@{userName}'s page</Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Top: username + new image button */}
+        <View style={styles.generateNewContainer}>
+          <Text style={styles.subtitle}>@{userName}'s page</Text>
           <Link 
-            href={{ 
-              pathname: '/upload',
-              params: {userName: userName, apiURL: apiURL}
-            }} 
-            asChild >
+            href={{ pathname: '/upload', params: { userName, apiURL } }} 
+            asChild
+          >
             <TouchableOpacity style={styles.newButton}>
               <Text style={styles.buttonText}>new image</Text>
             </TouchableOpacity>
           </Link>
-      </View>
+        </View>
 
-      <View>
-        <Image
-            source={{uri}}
-            style={styles.image}
-        />
-      </View>
+        {/* Image */}
+        <View style={styles.imageContainer}>
+          <Image source={{ uri }} style={styles.image} />
+        </View>
 
-      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 600 }}>
-        <WebView
-          originWhitelist={['*']}
-          source={{ html: spotifyEmbedCode }}
-          javaScriptEnabled
-          domStorageEnabled
-        />
-      </View>
+        {/* Playlist */}
+        <View style={styles.playlistContainer}>
+          <PlaylistPlayer playlistId={playlistIdStr} apiURL={apiURLStr} />
+        </View>
+      </ScrollView>
 
+      {/* Bottom button */}
       <View style={styles.finishContainer}>
         <TouchableOpacity style={styles.newButton} onPress={openSpotifyPlaylist}>
           <Text style={styles.buttonText}>view my playlist →</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop:80,
-    paddingBottom: 600,
-    paddingHorizontal: 24,
+    flex: 1,
     backgroundColor: '#fff',
+  },
+  scrollContent: {
+    paddingTop: 80,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
     alignItems: 'center',
   },
-  logo: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+  generateNewContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   subtitle: {
     fontSize: 28,
     fontWeight: '600',
     color: '#333',
-    marginLeft: 15,
-  },
-  text: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  generateNewContainer: {
-    paddingTop: 20,
-    width: '100%',
-    justifyContent: 'flex-start',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 5,
-  },
-  finishContainer: {
-    width: '100%',
-    justifyContent: 'flex-end',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 5,
-    marginTop: 5,
-    marginRight: 45,
   },
   newButton: {
-    alignItems: 'center',
-    margin: 12,
-    marginHorizontal: -10,
-    marginLeft: 15,
     borderRadius: 20,
-    padding: 6,
+    paddingVertical: 6,
     paddingHorizontal: 12,
     backgroundColor: '#BDBDBD',
   },
@@ -117,10 +93,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
   },
+  imageContainer: {
+    marginBottom: 20,
+    alignItems: 'center',
+  },
   image: {
-    paddingTop: 50,
-    justifyContent: 'center',
-    width: 320, 
+    width: 320,
     height: 400,
-  }
+    borderRadius: 12,
+  },
+  playlistContainer: {
+    width: '100%',
+    flexGrow: 1,
+  },
+  finishContainer: {
+    padding: 10,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
 });
